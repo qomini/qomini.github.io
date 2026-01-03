@@ -116,7 +116,7 @@ const SPELLS = {
 
   bomb_barrage: {
     name: "Bomb barrage",
-    description: ".145 x Target Max Vita + .295 x Target Max Mana",
+    description: ".145 x Target Max Vita + .295 x Target Max Mana (per hit; unknown # of hits)",
     calculateDamage: (stats, target) => {
       return Math.floor(0.145 * target.vita + 0.295 * target.mana);
     }
@@ -130,13 +130,13 @@ const SPELLS = {
     }
   },
 
-  ignite: {
-    name: "Ignite",
-    description: "Deals 50 damage",
-    calculateDamage: (stats, target) => {
-      return 50;
-    }
-  },
+//   ignite: {
+//     name: "Ignite",
+//     description: "Deals 50 damage",
+//     calculateDamage: (stats, target) => {
+//       return 50;
+//     }
+//   },
 
   // ========== MAGE SPELLS ==========
 

@@ -3,10 +3,102 @@ let calculator = null;
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+  initializeTheme();
   initializeForm();
+  loadSavedInputs();
   setupEventListeners();
   setupNumberFormatting();
+  setupInputSaving();
 });
+
+// Initialize theme from localStorage
+function initializeTheme() {
+  const savedTheme = localStorage.getItem('otkTheme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    updateThemeIcon();
+  }
+}
+
+// Toggle dark mode
+function toggleTheme() {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  localStorage.setItem('otkTheme', isDark ? 'dark' : 'light');
+  updateThemeIcon();
+}
+
+// Update theme icon
+function updateThemeIcon() {
+  const themeIcon = document.querySelector('.theme-icon');
+  const isDark = document.body.classList.contains('dark-mode');
+  themeIcon.textContent = isDark ? '☀️' : '🌙';
+}
+
+// Load saved inputs from localStorage
+function loadSavedInputs() {
+  const savedData = localStorage.getItem('otkCalcInputs');
+  if (savedData) {
+    try {
+      const inputs = JSON.parse(savedData);
+      
+      // Load all input fields
+      Object.keys(inputs).forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element && inputs[fieldId]) {
+          element.value = inputs[fieldId];
+        }
+      });
+    } catch (e) {
+      console.error('Error loading saved inputs:', e);
+    }
+  }
+}
+
+// Save inputs to localStorage
+function saveInputs() {
+  const inputFields = [
+    'class', 'level', 'vita', 'mana', 'dam', 'hit', 
+    'might', 'will', 'grace', 'targetAC', 'targetVita', 'targetMana'
+  ];
+  
+  const inputs = {};
+  inputFields.forEach(fieldId => {
+    const element = document.getElementById(fieldId);
+    if (element) {
+      inputs[fieldId] = element.value;
+    }
+  });
+  
+  localStorage.setItem('otkCalcInputs', JSON.stringify(inputs));
+}
+
+// Setup input saving on change
+function setupInputSaving() {
+  const form = document.getElementById('statsForm');
+  const inputs = form.querySelectorAll('input, select');
+  
+  inputs.forEach(input => {
+    input.addEventListener('change', saveInputs);
+    // Also save on input for text fields (real-time saving)
+    if (input.type === 'text' || input.type === 'number') {
+      input.addEventListener('input', debounce(saveInputs, 500));
+    }
+  });
+}
+
+// Debounce function to limit how often saveInputs is called
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 // Initialize form with default values and populate dropdowns
 function initializeForm() {
@@ -59,6 +151,10 @@ function setupNumberFormatting() {
 function setupEventListeners() {
   const calculateBtn = document.getElementById('calculateBtn');
   calculateBtn.addEventListener('click', handleCalculate);
+
+  // Theme toggle button
+  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', toggleTheme);
 
   // Optional: Calculate on input change
   const form = document.getElementById('statsForm');
