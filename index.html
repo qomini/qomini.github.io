@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Damage Calculator</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Damage Calculator</h1>
+            <p class="subtitle">Calculate spell damage for your character</p>
+        </header>
+
+        <main>
+            <div class="calculator-wrapper">
+                <form id="statsForm" class="stats-form">
+                    <!-- Character Stats Section -->
+                    <section class="form-section">
+                        <h2>Character Stats</h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="class">Class</label>
+                                <select id="class" required>
+                                    <option value="">Select Class</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="level">Level</label>
+                                <select id="level" required>
+                                    <option value="">Select Level</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vita">Vita</label>
+                                <input type="text" id="vita" placeholder="0" inputmode="numeric">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="mana">Mana</label>
+                                <input type="text" id="mana" placeholder="0" inputmode="numeric">
+                            </div>
+                        </div>
+
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="dam">Dam</label>
+                                <input type="number" id="dam" min="0" max="255" placeholder="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="hit">Hit</label>
+                                <input type="number" id="hit" min="0" max="255" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="might">Might</label>
+                                <input type="number" id="might" min="0" max="255" placeholder="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="will">Will</label>
+                                <input type="number" id="will" min="0" max="255" placeholder="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="grace">Grace</label>
+                                <input type="number" id="grace" min="0" max="255" placeholder="0">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Target Stats Section -->
+                    <section class="form-section">
+                        <h2>Target Stats</h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="targetAC">Target AC</label>
+                                <input type="number" id="targetAC" min="-999" max="999" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="targetVita">Target Vita</label>
+                                <input type="text" id="targetVita" placeholder="0" inputmode="numeric">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="targetMana">Target Mana</label>
+                                <input type="text" id="targetMana" placeholder="0" inputmode="numeric">
+                            </div>
+                        </div>
+                    </section>
+
+                    <button type="button" id="calculateBtn" class="calculate-btn">Calculate Damage</button>
+                </form>
+
+                <!-- Results Section -->
+                <section class="results-section">
+                    <h2>Spell Damage</h2>
+                    <div id="results" class="results">
+                        <p class="no-results">Enter your stats and click Calculate to see spell damage.</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer>
+            <p>Game Damage Calculator | Built for strategic planning</p>
+        </footer>
+    </div>
+
+    <!-- Load JavaScript files in correct order -->
+    <script src="js/data/classes.js"></script>
+    <script src="js/data/spells.js"></script>
+    <script src="js/calculator.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
