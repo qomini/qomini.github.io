@@ -74,9 +74,9 @@ const SPELLS = {
 
   dagger_toss: {
     name: "Dagger toss",
-    description: ".25 x Base Mana + 10 x Max Grace + 250",
+    description: ".25 x Base Mana + 10 x (Max Grace + 250)",
     calculateDamage: (stats, target) => {
-      return Math.floor(0.25 * stats.mana + 10 * stats.grace + 250);
+      return Math.floor(0.25 * stats.mana + (10 * (stats.grace + 250)));
     }
   },
 

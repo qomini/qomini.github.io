@@ -18,18 +18,43 @@
 
         <main>
             <div class="calculator-wrapper">
-                <!-- PvE/PvP Toggle -->
+                <!-- Mode Toggles -->
                 <section class="mode-toggle-section">
-                    <div class="mode-toggle">
-                        <label class="mode-label">
-                            <input type="radio" name="gameMode" value="pve" checked>
-                            <span>PvE</span>
-                        </label>
-                        <label class="mode-label disabled" title="PvP formulas not yet implemented">
-                            <input type="radio" name="gameMode" value="pvp" disabled>
-                            <span>PvP (Coming Soon)</span>
-                        </label>
+                    <!-- PvE/PvP Toggle -->
+                    <div class="mode-toggle-group">
+                        <label class="mode-toggle-label">Game Mode:</label>
+                        <div class="mode-toggle">
+                            <label class="mode-label">
+                                <input type="radio" name="gameMode" value="pve" checked>
+                                <span>PvE</span>
+                            </label>
+                            <label class="mode-label disabled" title="PvP formulas not yet implemented">
+                                <input type="radio" name="gameMode" value="pvp" disabled>
+                                <span>PvP (Coming Soon)</span>
+                            </label>
+                        </div>
                     </div>
+
+                    <!-- Comparison Mode Toggle -->
+                    <div class="mode-toggle-group">
+                        <label class="mode-toggle-label">Comparison Mode:</label>
+                        <div class="mode-toggle">
+                            <label class="mode-label">
+                                <input type="radio" name="comparisonMode" value="off" checked>
+                                <span>OFF</span>
+                            </label>
+                            <label class="mode-label">
+                                <input type="radio" name="comparisonMode" value="on">
+                                <span>ON</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Before/After Tab Switcher (hidden by default) -->
+                <section id="scenarioTabs" class="scenario-tabs" style="display: none;">
+                    <button type="button" class="scenario-tab active" data-scenario="before">Before</button>
+                    <button type="button" class="scenario-tab" data-scenario="after">After</button>
                 </section>
 
                 <form id="statsForm" class="stats-form">
