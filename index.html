@@ -18,6 +18,20 @@
 
         <main>
             <div class="calculator-wrapper">
+                <!-- PvE/PvP Toggle -->
+                <section class="mode-toggle-section">
+                    <div class="mode-toggle">
+                        <label class="mode-label">
+                            <input type="radio" name="gameMode" value="pve" checked>
+                            <span>PvE</span>
+                        </label>
+                        <label class="mode-label disabled" title="PvP formulas not yet implemented">
+                            <input type="radio" name="gameMode" value="pvp" disabled>
+                            <span>PvP (Coming Soon)</span>
+                        </label>
+                    </div>
+                </section>
+
                 <form id="statsForm" class="stats-form">
                     <!-- Character Stats Section -->
                     <section class="form-section">
@@ -79,6 +93,21 @@
                                 <input type="number" id="grace" min="0" max="255" placeholder="0">
                             </div>
                         </div>
+
+                        <!-- Buffs Subsection -->
+                        <div class="subsection-header">
+                            <h3>
+                                Buffs
+                                <button type="button" class="section-toggle" data-target="buffsContent">
+                                    <span class="toggle-icon">▼</span>
+                                </button>
+                            </h3>
+                        </div>
+                        <div id="buffsContent" class="collapsible-content">
+                            <div id="buffsGrid" class="effects-grid">
+                                <!-- Buffs will be populated by JavaScript -->
+                            </div>
+                        </div>
                     </section>
 
                     <!-- Target Stats Section -->
@@ -87,8 +116,18 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="targetAC">Target AC (not implemented)</label>
-                                <input type="number" id="targetAC" min="-999" max="999" placeholder="0">
+                                <label for="targetAC">Target AC</label>
+                                <input type="number" id="targetAC" min="-127" max="100" placeholder="0" title="Positive AC = more damage, Negative AC = less damage (max -80 effective)">
+                            </div>
+                        </div>
+
+                        <!-- Boss Toggle (PvE only) -->
+                        <div class="form-row" id="bossToggleRow">
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="isBoss" checked>
+                                    <span>Target is Boss</span>
+                                </label>
                             </div>
                         </div>
 
@@ -103,6 +142,21 @@
                             <div class="form-group">
                                 <label for="targetMana">Target Mana</label>
                                 <input type="text" id="targetMana" placeholder="0" inputmode="numeric">
+                            </div>
+                        </div>
+
+                        <!-- Debuffs Subsection -->
+                        <div class="subsection-header">
+                            <h3>
+                                Debuffs
+                                <button type="button" class="section-toggle" data-target="debuffsContent">
+                                    <span class="toggle-icon">▼</span>
+                                </button>
+                            </h3>
+                        </div>
+                        <div id="debuffsContent" class="collapsible-content">
+                            <div id="debuffsGrid" class="effects-grid">
+                                <!-- Debuffs will be populated by JavaScript -->
                             </div>
                         </div>
                     </section>
@@ -129,6 +183,7 @@
     <!-- Load JavaScript files in correct order -->
     <script src="js/data/classes.js"></script>
     <script src="js/data/spells.js"></script>
+    <script src="js/data/effects.js"></script>
     <script src="js/calculator.js"></script>
     <script src="js/main.js"></script>
 </body>

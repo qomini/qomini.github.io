@@ -142,7 +142,7 @@ const SPELLS = {
 
   blizzard: {
     name: "Blizzard/Combust/Electrocute",
-    description: "Level-scaling elemental zap (see formula by level)",
+    description: "Level-scaling elemental zap",
     calculateDamage: (stats, target) => {
       // Level-based formulas
       const level = stats.level;

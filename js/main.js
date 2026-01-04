@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
   setupEventListeners();
   setupNumberFormatting();
   setupInputSaving();
+  setupCollapsibleSections();
+  setupGameModeToggle();
+  populateBuffs();
+  populateDebuffs();
 });
 
 // Initialize theme from localStorage
@@ -45,8 +49,12 @@ function loadSavedInputs() {
       // Load all input fields
       Object.keys(inputs).forEach(fieldId => {
         const element = document.getElementById(fieldId);
-        if (element && inputs[fieldId]) {
-          element.value = inputs[fieldId];
+        if (element && inputs[fieldId] !== undefined) {
+          if (element.type === 'checkbox') {
+            element.checked = inputs[fieldId];
+          } else {
+            element.value = inputs[fieldId];
+          }
         }
       });
     } catch (e) {
@@ -69,6 +77,12 @@ function saveInputs() {
       inputs[fieldId] = element.value;
     }
   });
+  
+  // Save checkbox states
+  const isBossCheckbox = document.getElementById('isBoss');
+  if (isBossCheckbox) {
+    inputs.isBoss = isBossCheckbox.checked;
+  }
   
   localStorage.setItem('otkCalcInputs', JSON.stringify(inputs));
 }
@@ -156,6 +170,10 @@ function setupEventListeners() {
   const themeToggle = document.getElementById('themeToggle');
   themeToggle.addEventListener('click', toggleTheme);
 
+  // Class change updates available buffs
+  const classSelect = document.getElementById('class');
+  classSelect.addEventListener('change', updateBuffsForClass);
+
   // Optional: Calculate on input change
   const form = document.getElementById('statsForm');
   form.addEventListener('change', handleCalculate);
@@ -163,6 +181,10 @@ function setupEventListeners() {
 
 // Handle calculate button click
 function handleCalculate() {
+  // Get game mode and boss status
+  const gameMode = document.querySelector('input[name="gameMode"]:checked')?.value || 'pve';
+  const isBoss = document.getElementById('isBoss')?.checked || false;
+
   // Get character stats from form (strip commas from large numbers)
   const characterStats = {
     vita: parseInt(document.getElementById('vita').value.replace(/,/g, '')) || 0,
@@ -180,8 +202,13 @@ function handleCalculate() {
   const targetStats = {
     ac: parseInt(document.getElementById('targetAC').value) || 0,
     vita: parseInt(document.getElementById('targetVita').value.replace(/,/g, '')) || 0,
-    mana: parseInt(document.getElementById('targetMana').value.replace(/,/g, '')) || 0
+    mana: parseInt(document.getElementById('targetMana').value.replace(/,/g, '')) || 0,
+    isBoss: isBoss
   };
+
+  // Get selected buffs and debuffs
+  const selectedBuffs = getSelectedBuffs();
+  const selectedDebuffs = getSelectedDebuffs();
 
   // Validate inputs
   if (!characterStats.class || !characterStats.level) {
@@ -191,10 +218,13 @@ function handleCalculate() {
 
   // Create or update calculator
   if (!calculator) {
-    calculator = new DamageCalculator(characterStats, targetStats);
+    calculator = new DamageCalculator(characterStats, targetStats, selectedBuffs, selectedDebuffs, gameMode);
   } else {
+    calculator.gameMode = gameMode;
     calculator.updateCharacter(characterStats);
     calculator.updateTarget(targetStats);
+    calculator.updateBuffs(selectedBuffs);
+    calculator.updateDebuffs(selectedDebuffs);
   }
 
   // Calculate and display results
@@ -307,4 +337,139 @@ function displayError(message) {
 // Format large numbers with commas
 function formatNumber(num) {
   return num.toLocaleString();
+}
+
+// Setup collapsible sections
+function setupCollapsibleSections() {
+  const toggleButtons = document.querySelectorAll('.section-toggle');
+  
+  toggleButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const targetId = this.dataset.target;
+      const content = document.getElementById(targetId);
+      
+      if (content) {
+        content.classList.toggle('collapsed');
+        this.classList.toggle('collapsed');
+      }
+    });
+  });
+}
+
+// Setup game mode toggle (PvE/PvP)
+function setupGameModeToggle() {
+  const gameModeRadios = document.querySelectorAll('input[name="gameMode"]');
+  
+  gameModeRadios.forEach(radio => {
+    radio.addEventListener('change', updateBossToggleVisibility);
+  });
+  
+  // Set initial visibility
+  updateBossToggleVisibility();
+}
+
+// Update boss toggle visibility based on game mode
+function updateBossToggleVisibility() {
+  const isPvE = document.querySelector('input[name="gameMode"]:checked')?.value === 'pve';
+  const bossToggleRow = document.getElementById('bossToggleRow');
+  
+  if (bossToggleRow) {
+    bossToggleRow.style.display = isPvE ? 'grid' : 'none';
+  }
+}
+
+// Populate buffs section
+function populateBuffs() {
+  const buffsGrid = document.getElementById('buffsGrid');
+  const currentClass = document.getElementById('class').value;
+  
+  let html = '';
+  
+  Object.keys(BUFFS).forEach(buffId => {
+    const buff = BUFFS[buffId];
+    const isApplicable = buff.applicableClasses.includes(currentClass);
+    
+    // Hide self-only buffs if not applicable to current class
+    if (buff.selfOnly && !isApplicable) {
+      return; // Skip this buff entirely
+    }
+    
+    let restrictionText = '';
+    if (buff.selfOnly) {
+      restrictionText = `<div class="effect-restriction">(Self-cast only)</div>`;
+    } else if (buff.applicableClasses.length < 4) {
+      restrictionText = `<div class="effect-restriction">(Cast by: ${buff.applicableClasses.map(c => CLASSES[c].name).join(', ')})</div>`;
+    }
+    
+    html += `
+      <label class="effect-option" data-effect-id="${buffId}">
+        <input type="checkbox" name="buff" value="${buffId}" onchange="handleBuffDebuffChange(this, 'buff')">
+        <div class="effect-info">
+          <div class="effect-name">${buff.name}</div>
+          <div class="effect-description">${buff.description}</div>
+          ${restrictionText}
+        </div>
+      </label>
+    `;
+  });
+  
+  buffsGrid.innerHTML = html || '<p class="no-effects">No buffs available</p>';
+}
+
+// Populate debuffs section
+function populateDebuffs() {
+  const debuffsGrid = document.getElementById('debuffsGrid');
+  
+  let html = '';
+  
+  Object.keys(DEBUFFS).forEach(debuffId => {
+    const debuff = DEBUFFS[debuffId];
+    
+    html += `
+      <label class="effect-option" data-effect-id="${debuffId}">
+        <input type="checkbox" name="debuff" value="${debuffId}" onchange="handleBuffDebuffChange(this, 'debuff')">
+        <div class="effect-info">
+          <div class="effect-name">${debuff.name}</div>
+          <div class="effect-description">${debuff.description}</div>
+        </div>
+      </label>
+    `;
+  });
+  
+  debuffsGrid.innerHTML = html;
+}
+
+// Handle buff/debuff checkbox changes with mutual exclusivity
+function handleBuffDebuffChange(checkbox, type) {
+  if (!checkbox.checked) return;
+  
+  const effectId = checkbox.value;
+  const effectData = type === 'buff' ? BUFFS[effectId] : DEBUFFS[effectId];
+  
+  if (effectData && effectData.mutuallyExclusive) {
+    // Uncheck mutually exclusive effects
+    effectData.mutuallyExclusive.forEach(excludedId => {
+      const excludedCheckbox = document.querySelector(`input[name="${type}"][value="${excludedId}"]`);
+      if (excludedCheckbox) {
+        excludedCheckbox.checked = false;
+      }
+    });
+  }
+}
+
+// Update buffs when class changes
+function updateBuffsForClass() {
+  populateBuffs();
+}
+
+// Get selected buffs
+function getSelectedBuffs() {
+  const checkboxes = document.querySelectorAll('input[name="buff"]:checked');
+  return Array.from(checkboxes).map(cb => cb.value);
+}
+
+// Get selected debuffs
+function getSelectedDebuffs() {
+  const checkboxes = document.querySelectorAll('input[name="debuff"]:checked');
+  return Array.from(checkboxes).map(cb => cb.value);
 }
